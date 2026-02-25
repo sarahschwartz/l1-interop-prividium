@@ -1,11 +1,9 @@
 import { ETH_ADDRESS } from "@matterlabs/zksync-js/core";
 import type { ViemClient, ViemSdk } from "@matterlabs/zksync-js/viem";
 import {
-  decodeFunctionData,
   encodeFunctionData,
   type Abi,
   type Address,
-  type Hex,
 } from "viem";
 
 import L2_INTEROP_CENTER_JSON from "./abis/L2InteropCenter.json";
@@ -22,6 +20,14 @@ import { config } from "./wagmi";
 
 const L2_GAS_LIMIT = 300000n;
 const L2_GAS_PER_PUBDATA = 800n;
+
+type ContractWriteTx = {
+  address: Address;
+  abi: Abi;
+  functionName: string;
+  args: readonly unknown[];
+  value: bigint;
+};
 
 export async function sendAuthorizedTx({
   txnType,
@@ -41,16 +47,10 @@ export async function sendAuthorizedTx({
   accountAddress: Address;
 }) {
 
-  let tx: {
-    to: Address,
-    value: bigint,
-    data: Hex,
-  };
-  let abi: Abi;
+  let tx: ContractWriteTx | undefined;
 
   if (txnType === "depositToAaveBundle") {
     tx = await getDepositBundle(shadowAccount, amount);
-    abi = L2_INTEROP_CENTER_JSON.abi as Abi;
   } else if (txnType === "withdrawFromAaveBundle") {
     tx = await getWithdrawBundle(
       amount,
@@ -59,55 +59,62 @@ export async function sendAuthorizedTx({
       sdk,
       sdkClient,
     );
-     abi = L2_INTEROP_CENTER_JSON.abi as Abi;
   } else {
     const prepare = await prepareWithdraw(amount, sdk, shadowAccount);
-    if(!prepare) throw new Error("unable to prepare");
-    tx = prepare?.txInfo;
-    abi = prepare?.abi as Abi;
+    if (!prepare) throw new Error("unable to prepare");
+    tx = prepare;
   }
+
+  if (!tx) throw new Error("failed to prepare transaction");
+
+  const calldata = encodeFunctionData({
+    abi: tx.abi,
+    functionName: tx.functionName,
+    args: tx.args,
+  });
+
+  const rawTx = {
+    to: tx.address,
+    value: tx.value,
+    data: calldata,
+  };
+
   console.log("getting nonce...");
   const nonce = await sdkClient.l2.getTransactionCount({ address: accountAddress });
   console.log("nonce:", nonce);
-  const gas = await sdkClient.l2.estimateGas(tx);
+  const gas = await sdkClient.l2.estimateGas({
+    account: accountAddress,
+    ...rawTx,
+    nonce,
+  });
   console.log("gas:", gas);
   const gasPrice = await sdkClient.l2.getGasPrice();
   console.log("gas price:", gasPrice);
 
-  const finalRawTx = {
+  const finalContractTx = {
     ...tx,
     account: accountAddress,
     nonce,
     gas,
     gasPrice,
-  }
+  };
 
-  console.log("tx:", finalRawTx);
+  console.log("tx:", finalContractTx);
 
   console.log("going to authorize");
   await prividium.authorizeTransaction({
     walletAddress: accountAddress,
-    toAddress: tx.to,
+    toAddress: tx.address,
     nonce,
-    calldata: tx.data,
-    value: tx.value || 0n,
+    calldata,
+    value: tx.value,
   });
 
   console.log("authorized");
 
-  const decoded = decodeFunctionData({
-  abi,
-  data: tx.data,
-});
-
-  const hash = await writeContract(config, {
-    address: tx.to,
-    abi,
-    functionName: decoded.functionName,
-    args: decoded.args
-  })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hash = await writeContract(config, finalContractTx as any);
   console.log("HASH:", hash);
-  // await walletClient.sendTransaction(request as any);
   await sdkClient.l2.waitForTransactionReceipt({ hash });
 
   return hash;
@@ -141,7 +148,7 @@ export async function getAaveBalance(
 export async function getDepositBundle(
   shadowAccount: `0x${string}`,
   amount: bigint,
-) {
+) : Promise<ContractWriteTx> {
   const depositETHData = encodeFunctionData({
     abi: MOCK_AAVE_JSON.abi as Abi,
     functionName: "depositETH",
@@ -156,16 +163,12 @@ export async function getDepositBundle(
     },
   ];
 
-  const data = encodeFunctionData({
+  return {
+    address: L2_INTEROP_CENTER_ADDRESS as Address,
     abi: L2_INTEROP_CENTER_JSON.abi as Abi,
     functionName: "sendBundleToL1",
     args: [ops],
-  });
-
-  return {
-    to: L2_INTEROP_CENTER_ADDRESS,
     value: 0n,
-    data,
   };
 }
 export async function getWithdrawBundle(
@@ -174,7 +177,7 @@ export async function getWithdrawBundle(
   l2Receiver: Address,
   sdk: ViemSdk,
   client: ViemClient,
-) {
+) : Promise<ContractWriteTx> {
   // Calculate mintValue for L2 gas
   const gasPrice = await client.l1.getGasPrice();
   const bridgehub = await sdk.contracts.bridgehub();
@@ -232,16 +235,12 @@ export async function getWithdrawBundle(
     },
   ];
 
-  const data = encodeFunctionData({
+  return {
+    address: L2_INTEROP_CENTER_ADDRESS as Address,
     abi: L2_INTEROP_CENTER_JSON.abi as Abi,
     functionName: "sendBundleToL1",
     args: [ops],
-  });
-
-  return {
-    to: L2_INTEROP_CENTER_ADDRESS,
     value: 0n,
-    data,
   };
 }
 
@@ -249,7 +248,7 @@ export async function prepareWithdraw(
   amount: bigint,
   sdk: ViemSdk,
   shadowAccount: Address,
-) {
+) : Promise<ContractWriteTx | undefined> {
   try {
     const params = {
       token: ETH_ADDRESS,
@@ -262,20 +261,13 @@ export async function prepareWithdraw(
     console.log("prepared:", prepared);
     const tx = prepared.steps[0].tx;
 
-    const data = encodeFunctionData({
-      abi: tx.abi,
-      functionName: tx.functionName,
-      args: tx.args,
-    });
-
     return {
-      txInfo: {
-      to: tx.address,
+      address: tx.address as Address,
+      abi: tx.abi as Abi,
+      functionName: tx.functionName as string,
+      args: tx.args as readonly unknown[],
       value: tx.value || 0n,
-      data,
-    },
-    abi: tx.abi
-  };
+    };
   } catch (e) {
     alert("something went wrong");
     console.log("ERROR:", e);

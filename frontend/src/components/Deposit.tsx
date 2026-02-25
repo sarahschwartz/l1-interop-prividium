@@ -65,16 +65,20 @@ export function Deposit({
         accountAddress
       });
 
+      // const bundleHash = "0x6ba3b674121b0bed1b3bf77df520ab6a230bbe4adc1a593bc465918b9dcb5e25";
+
       console.log("bundleHash", bundleHash)
 
-      // const withdrawHash = await sendAuthorizedTx({
-      //   txnType: "withdrawToL1",
-      //   amount,
-      //   prividium,
-      //   sdk,
-      //   sdkClient,
-      // })
-      // storeDepositETHHashes(withdrawHash, bundleHash, accountAddress, amount);
+      const withdrawHash = await sendAuthorizedTx({
+        txnType: "withdrawToL1",
+        amount,
+        prividium,
+        sdk,
+        sdkClient,
+        shadowAccount,
+        accountAddress
+      })
+      storeDepositETHHashes(withdrawHash, bundleHash, accountAddress, amount);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log("Error depositing ETH:", error);

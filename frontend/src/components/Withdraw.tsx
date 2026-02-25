@@ -5,6 +5,7 @@ import { Spinner } from "./Spinner";
 import { sendAuthorizedTx } from "../utils/txns";
 import type { ViemClient, ViemSdk } from "@matterlabs/zksync-js/viem";
 import { usePrividium } from "../hooks/usePrividium";
+import { storeWithdrawETHHash } from "../utils/storage";
 
 interface Props {
   aaveBalance: bigint;
@@ -64,7 +65,7 @@ export function Withdraw({
         accountAddress
       });
       console.log("HASH:", hash);
-      // TODO: send to backend
+      storeWithdrawETHHash(hash, accountAddress, amount);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log("Error withdrawing from Aave", error);
