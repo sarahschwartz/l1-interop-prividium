@@ -1,9 +1,11 @@
 import { ETH_ADDRESS } from "@matterlabs/zksync-js/core";
 import type { ViemClient, ViemSdk } from "@matterlabs/zksync-js/viem";
 import {
+  decodeFunctionData,
   encodeFunctionData,
   type Abi,
   type Address,
+  type Hex,
 } from "viem";
 
 import L2_INTEROP_CENTER_JSON from "./abis/L2InteropCenter.json";
@@ -39,11 +41,16 @@ export async function sendAuthorizedTx({
   accountAddress: Address;
 }) {
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let tx: any;
+  let tx: {
+    to: Address,
+    value: bigint,
+    data: Hex,
+  };
+  let abi: Abi;
 
   if (txnType === "depositToAaveBundle") {
     tx = await getDepositBundle(shadowAccount, amount);
+    abi = L2_INTEROP_CENTER_JSON.abi as Abi;
   } else if (txnType === "withdrawFromAaveBundle") {
     tx = await getWithdrawBundle(
       amount,
@@ -52,8 +59,12 @@ export async function sendAuthorizedTx({
       sdk,
       sdkClient,
     );
+     abi = L2_INTEROP_CENTER_JSON.abi as Abi;
   } else {
-    tx = await prepareWithdraw(amount, sdk, shadowAccount);
+    const prepare = await prepareWithdraw(amount, sdk, shadowAccount);
+    if(!prepare) throw new Error("unable to prepare");
+    tx = prepare?.txInfo;
+    abi = prepare?.abi as Abi;
   }
   console.log("getting nonce...");
   const nonce = await sdkClient.l2.getTransactionCount({ address: accountAddress });
@@ -84,7 +95,17 @@ export async function sendAuthorizedTx({
 
   console.log("authorized");
 
-  const hash = await writeContract(config, finalRawTx)
+  const decoded = decodeFunctionData({
+  abi,
+  data: tx.data,
+});
+
+  const hash = await writeContract(config, {
+    address: tx.to,
+    abi,
+    functionName: decoded.functionName,
+    args: decoded.args
+  })
   console.log("HASH:", hash);
   // await walletClient.sendTransaction(request as any);
   await sdkClient.l2.waitForTransactionReceipt({ hash });
@@ -248,10 +269,13 @@ export async function prepareWithdraw(
     });
 
     return {
+      txInfo: {
       to: tx.address,
-      value: tx.value,
+      value: tx.value || 0n,
       data,
-    };
+    },
+    abi: tx.abi
+  };
   } catch (e) {
     alert("something went wrong");
     console.log("ERROR:", e);
