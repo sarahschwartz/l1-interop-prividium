@@ -1,0 +1,156 @@
+{
+  "_format": "hh3-artifact-1",
+  "contractName": "MockAave",
+  "sourceName": "contracts/MockAave.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "EthTransferFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "available",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "requested",
+          "type": "uint256"
+        }
+      ],
+      "name": "InsufficientBalance",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "UnauthorizedWithdrawCaller",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Deposited",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "Withdrawn",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "balances",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_accountAddress",
+          "type": "address"
+        }
+      ],
+      "name": "depositETH",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x6080604052348015600e575f5ffd5b506103158061001c5f395ff3fe608060405260043610610033575f3560e01c806327e235e3146100375780632d2da80614610074578063f3fef3a314610089575b5f5ffd5b348015610042575f5ffd5b50610062610051366004610257565b5f6020819052908152604090205481565b60405190815260200160405180910390f35b610087610082366004610257565b6100a8565b005b348015610094575f5ffd5b506100876100a3366004610277565b61011c565b6001600160a01b0381165f908152602081905260409020546100cb9034906102b3565b6001600160a01b0382165f8181526020818152604091829020939093555134815290917f2da466a7b24304f47e87fa2e1e5a81b9831ce54fec19055ce277ca2f39ba42c4910160405180910390a250565b335f908152602081905260409020548181101561015b5760405163cf47918160e01b815260048101829052602481018390526044015b60405180910390fd5b61016582826102cc565b335f908152602081905260408082209290925590516001600160a01b0385169084908381818185875af1925050503d805f81146101bd576040519150601f19603f3d011682016040523d82523d5f602084013e6101c2565b606091505b50509050806101f657604051636f54afdd60e11b81526001600160a01b038516600482015260248101849052604401610152565b6040518381526001600160a01b0385169033907fd1c19fbcd4551a5edfb66d43d2e337c04837afda3482b42bdf569a8fccdae5fb9060200160405180910390a350505050565b80356001600160a01b0381168114610252575f5ffd5b919050565b5f60208284031215610267575f5ffd5b6102708261023c565b9392505050565b5f5f60408385031215610288575f5ffd5b6102918361023c565b946020939093013593505050565b634e487b7160e01b5f52601160045260245ffd5b808201808211156102c6576102c661029f565b92915050565b818103818111156102c6576102c661029f56fea264697066735822122047a3c92249aeebd8ed471d217fca000166d3c24a930f0daf745b1958c604509b64736f6c634300081c0033",
+  "deployedBytecode": "0x608060405260043610610033575f3560e01c806327e235e3146100375780632d2da80614610074578063f3fef3a314610089575b5f5ffd5b348015610042575f5ffd5b50610062610051366004610257565b5f6020819052908152604090205481565b60405190815260200160405180910390f35b610087610082366004610257565b6100a8565b005b348015610094575f5ffd5b506100876100a3366004610277565b61011c565b6001600160a01b0381165f908152602081905260409020546100cb9034906102b3565b6001600160a01b0382165f8181526020818152604091829020939093555134815290917f2da466a7b24304f47e87fa2e1e5a81b9831ce54fec19055ce277ca2f39ba42c4910160405180910390a250565b335f908152602081905260409020548181101561015b5760405163cf47918160e01b815260048101829052602481018390526044015b60405180910390fd5b61016582826102cc565b335f908152602081905260408082209290925590516001600160a01b0385169084908381818185875af1925050503d805f81146101bd576040519150601f19603f3d011682016040523d82523d5f602084013e6101c2565b606091505b50509050806101f657604051636f54afdd60e11b81526001600160a01b038516600482015260248101849052604401610152565b6040518381526001600160a01b0385169033907fd1c19fbcd4551a5edfb66d43d2e337c04837afda3482b42bdf569a8fccdae5fb9060200160405180910390a350505050565b80356001600160a01b0381168114610252575f5ffd5b919050565b5f60208284031215610267575f5ffd5b6102708261023c565b9392505050565b5f5f60408385031215610288575f5ffd5b6102918361023c565b946020939093013593505050565b634e487b7160e01b5f52601160045260245ffd5b808201808211156102c6576102c661029f565b92915050565b818103818111156102c6576102c661029f56fea264697066735822122047a3c92249aeebd8ed471d217fca000166d3c24a930f0daf745b1958c604509b64736f6c634300081c0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "immutableReferences": {},
+  "inputSourceName": "project/contracts/MockAave.sol",
+  "buildInfoId": "solc-0_8_28-310e837436323ab265748510b69558daa772776f"
+}

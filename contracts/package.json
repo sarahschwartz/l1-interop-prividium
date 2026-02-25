@@ -1,0 +1,25 @@
+{
+  "name": "contracts",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:aave": "hardhat ignition deploy --network localL1 ignition/modules/MockAave.ts",
+    "deploy:l1-interop": "hardhat ignition deploy --network localL1 ignition/modules/L1InteropHandler.ts",
+    "deploy:l2-interop": "hardhat ignition deploy --network localPrividium ignition/modules/L2InteropCenter.ts",
+    "bridgehub": "hardhat run scripts/get-bridgehub-address.ts"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ignition": "^3.0.7",
+    "@nomicfoundation/hardhat-toolbox-viem": "^5.0.2",
+    "@types/node": "^22.19.11",
+    "forge-std": "github:foundry-rs/forge-std#v1.9.4",
+    "hardhat": "^3.1.8",
+    "typescript": "~5.8.0",
+    "viem": "^2.45.3"
+  },
+  "dependencies": {
+    "@matterlabs/zksync-contracts": "^29.0.0",
+    "@matterlabs/zksync-js": "^0.0.10"
+  }
+}
