@@ -20,6 +20,12 @@ import { config } from "./wagmi";
 
 const L2_GAS_LIMIT = 300000n;
 const L2_GAS_PER_PUBDATA = 800n;
+const PRIVIDIUM_CHAIN_ID = Number(import.meta.env.VITE_CHAIN_ID);
+const PRIVIDIUM_CHAIN_ID_HEX = `0x${PRIVIDIUM_CHAIN_ID.toString(16)}`;
+
+type WalletProvider = {
+  request: (args: { method: string; params?: readonly unknown[] }) => Promise<unknown>;
+};
 
 type ContractWriteTx = {
   address: Address;
@@ -28,6 +34,52 @@ type ContractWriteTx = {
   args: readonly unknown[];
   value: bigint;
 };
+
+async function ensureWalletOnPrividiumChain() {
+  const provider = (window as Window & { ethereum?: WalletProvider }).ethereum;
+  if (!provider) throw new Error("wallet provider not found");
+
+  const currentChainId = await provider.request({ method: "eth_chainId" });
+  if (currentChainId === PRIVIDIUM_CHAIN_ID_HEX) return;
+
+  try {
+    await provider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: PRIVIDIUM_CHAIN_ID_HEX }],
+    });
+  } catch (error) {
+    const switchError = error as { code?: number };
+    if (switchError.code !== 4902) {
+      throw new Error("please switch your wallet to the Prividium network");
+    }
+
+    await provider.request({
+      method: "wallet_addEthereumChain",
+      params: [
+        {
+          chainId: PRIVIDIUM_CHAIN_ID_HEX,
+          chainName: import.meta.env.VITE_CHAIN_NAME || `Prividium-${PRIVIDIUM_CHAIN_ID}`,
+          nativeCurrency: {
+            name: import.meta.env.VITE_NATIVE_CURRENCY_SYMBOL || "ETH",
+            symbol: import.meta.env.VITE_NATIVE_CURRENCY_SYMBOL || "ETH",
+            decimals: 18,
+          },
+          rpcUrls: [import.meta.env.VITE_PRIVIDIUM_RPC_URL],
+        },
+      ],
+    });
+
+    await provider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: PRIVIDIUM_CHAIN_ID_HEX }],
+    });
+  }
+
+  const finalChainId = await provider.request({ method: "eth_chainId" });
+  if (finalChainId !== PRIVIDIUM_CHAIN_ID_HEX) {
+    throw new Error("please switch your wallet to the Prividium network");
+  }
+}
 
 export async function sendAuthorizedTx({
   txnType,
@@ -46,6 +98,7 @@ export async function sendAuthorizedTx({
   shadowAccount: Address;
   accountAddress: Address;
 }) {
+  await ensureWalletOnPrividiumChain();
 
   let tx: ContractWriteTx | undefined;
 
