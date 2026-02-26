@@ -162,10 +162,13 @@ export function EarnTab({
           gasPrice: bumpedGasPrice,
         });
 
-        await sdkClient.l1.waitForTransactionReceipt({
+        const receipt = await sdkClient.l1.waitForTransactionReceipt({
           hash: l1FinalizeTxHash,
           timeout: 300_000,
         });
+
+        console.log("RECEIPT:", receipt)
+        if(receipt.status !== "success") throw new Error("finalization reverted");
       } else {
         throw new Error("Transaction is not ready to finalize");
       }
