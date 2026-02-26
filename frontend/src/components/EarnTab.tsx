@@ -15,9 +15,11 @@ import type { ViemClient, ViemSdk } from "@matterlabs/zksync-js/viem";
 import { getAaveBalance, getShadowAccount } from "../utils/txns";
 import {
   addFinalizedTx,
+} from "../utils/storage";
+import {
   getInteropFinalizeParams,
   updateTxStatuses,
-} from "../utils/storage";
+} from "../utils/interop";
 import L1_INTEROP_HANDLER_JSON from "../utils/abis/L1InteropHandler.json";
 import { L1_INTEROP_HANDLER_ADDRESS } from "../utils/constants";
 
