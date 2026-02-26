@@ -31,7 +31,7 @@ export function Withdraw({
   const { prividium } = usePrividium();
 
   const btnsDisabled =
-    accountAddress && shadowAccount && aaveBalance ? false : true;
+    accountAddress && shadowAccount && aaveBalance > 0n ? false : true;
 
   function handleWithdrawAmountChange(e: ChangeEvent<HTMLInputElement>) {
     const newAmount = parseEther(e.target.value);
@@ -113,7 +113,7 @@ export function Withdraw({
           />
         </div>
         <button
-          className="w-full enterprise-button-primary"
+          className="w-full enterprise-button-primary disabled:bg-gray-500! disabled:cursor-not-allowed!"
           id="aaveWithdrawBtn"
           disabled={btnsDisabled || isSending}
           type="submit"

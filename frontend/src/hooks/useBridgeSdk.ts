@@ -2,14 +2,13 @@ import {
   createPublicClient,
   createWalletClient,
   custom,
-  defineChain,
   http,
   type Address,
   type EIP1193Provider,
   type PublicClient,
 } from "viem";
 import { createViemClient, createViemSdk } from "@matterlabs/zksync-js/viem";
-import { prividiumChain } from "../utils/wagmi";
+import { l1Chain, prividiumChain } from "../utils/wagmi";
 import type { Connector } from "wagmi";
 
 export function useBridgeSdk(
@@ -17,21 +16,6 @@ export function useBridgeSdk(
   connector: Connector,
   address: Address
 ) {
-  const l1ChainId = Number(import.meta.env.VITE_L1_CHAIN_ID || 31337);
-  const l1RpcUrl = import.meta.env.VITE_L1_RPC_URL || "http://localhost:5010";
-
-  const l1Chain = defineChain({
-    id: l1ChainId,
-    name: (import.meta.env.VITE_L1_CHAIN_NAME as string) || `L1-${l1ChainId}`,
-    nativeCurrency: {
-      name: "Ether",
-      symbol: "ETH",
-      decimals: 18,
-    },
-    rpcUrls: {
-      default: { http: [l1RpcUrl] },
-    },
-  });
 
   const l1PublicClient = l1Chain
     ? createPublicClient({
