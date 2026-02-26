@@ -1,7 +1,7 @@
 export function Spinner() {
   return (
     <svg
-      className="deploying-spinner"
+      className="deploying-spinner w-full"
       width="20"
       height="20"
       viewBox="0 0 24 24"

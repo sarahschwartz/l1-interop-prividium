@@ -168,7 +168,10 @@ export function EarnTab({
         });
 
         console.log("RECEIPT:", receipt)
-        if(receipt.status !== "success") throw new Error("finalization reverted");
+        if(receipt.status !== "success"){
+          alert("Finalization txn reverted. Try again.");
+          throw new Error("finalization reverted");
+        } 
       } else {
         throw new Error("Transaction is not ready to finalize");
       }
