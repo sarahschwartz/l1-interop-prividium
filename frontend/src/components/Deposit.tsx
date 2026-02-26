@@ -13,6 +13,7 @@ interface Props {
   accountAddress: Address;
   sdk: ViemSdk;
   sdkClient: ViemClient;
+  onComplete?: () => void;
 }
 
 export function Deposit({
@@ -20,7 +21,8 @@ export function Deposit({
   shadowAccount,
   accountAddress,
   sdk,
-  sdkClient
+  sdkClient,
+  onComplete,
 }: Props) {
   const [depositAmount, setDepositAmount] = useState<string>("0");
   const [isSending, setIsSending] = useState<boolean>(false);
@@ -79,6 +81,7 @@ export function Deposit({
         accountAddress
       })
       storeDepositETHHashes(withdrawHash, bundleHash, accountAddress, amount);
+      onComplete?.();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log("Error depositing ETH:", error);

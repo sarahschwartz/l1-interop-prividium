@@ -285,3 +285,110 @@ button.refresh-btn-inline:hover {
 button.refresh-btn-inline:active {
   transform: none;
 }
+
+.tab-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #262b33;
+}
+
+.card {
+  background: white;
+  border-radius: 32px;
+  padding: 24px;
+  margin-bottom: 16px;
+  border: none;
+  box-shadow:
+    0 12px 12px rgba(10, 26, 102, 0.015),
+    0 24px 32px rgba(10, 26, 102, 0.015);
+}
+
+
+.tx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.tx-table thead {
+  background: none;
+}
+
+.tx-table th,
+.tx-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tx-table th {
+  font-weight: 400;
+  color: #374151;
+  opacity: 0.7;
+}
+
+.tx-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.tx-amount {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.tx-date {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.tx-link {
+  color: #262b33;
+  text-decoration: underline;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.tx-table td:last-child,
+.tx-table th:last-child {
+  text-align: right;
+  width: 1%;
+  white-space: nowrap;
+}
+
+.tx-empty {
+  text-align: center;
+  padding: 16px;
+  color: #9ca3af;
+}
+
+/* Status badges */
+.tx-status {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.tx-status--pending {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.tx-status--success {
+  background: none;
+  color: #047857;
+}
+
+/* Pending progress bar */
+.pending-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pending-progress-bar {
+  width: 120px;
+  height: 16px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}

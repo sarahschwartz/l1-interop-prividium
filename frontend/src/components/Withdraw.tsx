@@ -13,6 +13,7 @@ interface Props {
   accountAddress: Address;
   sdk: ViemSdk;
   sdkClient: ViemClient;
+  onComplete?: () => void;
 }
 
 export function Withdraw({
@@ -21,6 +22,7 @@ export function Withdraw({
   accountAddress,
   sdk,
   sdkClient,
+  onComplete,
 }: Props) {
   const [withdrawAmount, setWithdrawAmount] = useState<string>("0");
   const [isSending, setIsSending] = useState<boolean>(false);
@@ -66,6 +68,7 @@ export function Withdraw({
       });
       console.log("HASH:", hash);
       storeWithdrawETHHash(hash, accountAddress, amount);
+      onComplete?.();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.log("Error withdrawing from Aave", error);

@@ -1,8 +1,9 @@
 import type { Address, Hex } from "viem";
-import type { HashItem } from "./types";
+import type { FinalizedTxnState, HashItem } from "./types";
 
 const depositsKeyBase = "latestAaveZKsyncDeposits-";
 const borrowsKeyBase = "latestAaveZKsyncBorrows-";
+const finalizedKeyBase = "latestAaveInteropFinalized-";
 
 export function getHashes(address: `0x${string}`): {
   deposits: HashItem[] | undefined;
@@ -95,4 +96,25 @@ function storeHashes(
   }
 
   localStorage.setItem(key, JSON.stringify(hashes));
+}
+
+export function getFinalizedTxs(address: Address): FinalizedTxnState[] {
+  const key = `${finalizedKeyBase}${address}`;
+  const stored = localStorage.getItem(key);
+  if (!stored) return [];
+
+  try {
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? (parsed as FinalizedTxnState[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function addFinalizedTx(address: Address, tx: FinalizedTxnState): void {
+  const key = `${finalizedKeyBase}${address}`;
+  const existing = getFinalizedTxs(address);
+  const withoutDup = existing.filter((item) => item.l2TxHash !== tx.l2TxHash);
+  withoutDup.unshift(tx);
+  localStorage.setItem(key, JSON.stringify(withoutDup.slice(0, 100)));
 }

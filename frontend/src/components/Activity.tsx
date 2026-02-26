@@ -1,18 +1,24 @@
 import { BLOCK_EXPLORER_URL } from "../utils/constants";
 import type { FinalizedTxnState, PendingTxnState } from "../utils/types";
-
-import { PendingProgressBar } from "./ProgressBar";
+import type { Hex } from "viem";
+import { formatEther } from "viem";
 
 interface Props {
   pendingTxns: PendingTxnState[];
   finalizedTxns: FinalizedTxnState[];
+  onFinalize: (tx: PendingTxnState) => Promise<void>;
+  finalizingHash?: Hex;
 }
 
-export function ActivityTab({ pendingTxns, finalizedTxns }: Props) {
+export function ActivityTab({
+  pendingTxns,
+  finalizedTxns,
+  onFinalize,
+  finalizingHash,
+}: Props) {
   if (pendingTxns.length > 0 || finalizedTxns.length > 0) {
     return (
       <div
-        className="tab-content"
         id="activity-tab"
       >
         <div
@@ -42,14 +48,26 @@ export function ActivityTab({ pendingTxns, finalizedTxns }: Props) {
               {pendingTxns.map((tx) => (
                 <tr key={tx.hash}>
                   <td>{tx.action}</td>
-                  <td className="tx-amount">{tx.amount}</td>
+                  <td className="tx-amount">{formatEther(BigInt(tx.amount))}</td>
                   <td>
-                    <PendingProgressBar addedAt={tx.addedAt} />
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <span>{tx.status}</span>
+                      {tx.readyToFinalize ? (
+                        <button
+                          className="enterprise-button-primary"
+                          style={{ padding: "6px 10px" }}
+                          onClick={() => void onFinalize(tx)}
+                          disabled={finalizingHash === tx.hash}
+                        >
+                          {finalizingHash === tx.hash ? "Finalizing..." : "Finalize"}
+                        </button>
+                      ) : null}
+                    </div>
                   </td>
                   <td>
                     <a
                       className="tx-link"
-                      href={`https://zksync-os-testnet-alpha.staging-scan-v2.zksync.dev/tx/${tx.hash}`}
+                      href={`${BLOCK_EXPLORER_URL}/tx/${tx.hash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -70,11 +88,11 @@ export function ActivityTab({ pendingTxns, finalizedTxns }: Props) {
                   <td>
                     <a
                       className="tx-link"
-                      href={`${BLOCK_EXPLORER_URL}/tx/${tx.l2TxHash}`}
+                      href={`${BLOCK_EXPLORER_URL}/tx/${tx.l1FinalizeTxHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {tx.l2TxHash.slice(0, 6)}...{tx.l2TxHash.slice(-4)}
+                      {tx.l1FinalizeTxHash.slice(0, 6)}...{tx.l1FinalizeTxHash.slice(-4)}
                     </a>
                   </td>
                 </tr>

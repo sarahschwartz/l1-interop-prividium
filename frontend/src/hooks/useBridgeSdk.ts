@@ -17,8 +17,8 @@ export function useBridgeSdk(
   connector: Connector,
   address: Address
 ) {
-  const l1ChainId = import.meta.env.VITE_L1_CHAIN_ID || 31337;
-  const l1RpcUrl = import.meta.env.VITE_L1_RPC_URL || " http://localhost:5010";
+  const l1ChainId = Number(import.meta.env.VITE_L1_CHAIN_ID || 31337);
+  const l1RpcUrl = import.meta.env.VITE_L1_RPC_URL || "http://localhost:5010";
 
   const l1Chain = defineChain({
     id: l1ChainId,
