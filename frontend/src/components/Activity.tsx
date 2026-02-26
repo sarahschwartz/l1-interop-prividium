@@ -79,7 +79,7 @@ export function ActivityTab({
               {finalizedTxns.map((tx) => (
                 <tr key={tx.l1FinalizeTxHash}>
                   <td>{tx.action === "Deposit" ? "Deposit" : "Withdraw"}</td>
-                  <td className="tx-amount">{parseFloat(tx.amount).toFixed(4)}</td>
+                  <td className="tx-amount">{formatEther(BigInt(tx.amount))}</td>
                   <td>
                     <span className="tx-status tx-status--success">
                       Finalized At{" "}{new Date(tx.finalizedAt).toLocaleString()}
@@ -88,11 +88,11 @@ export function ActivityTab({
                   <td>
                     <a
                       className="tx-link"
-                      href={`${BLOCK_EXPLORER_URL}/tx/${tx.l1FinalizeTxHash}`}
+                      href={`${BLOCK_EXPLORER_URL}/tx/${tx.l2TxHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {tx.l1FinalizeTxHash.slice(0, 6)}...{tx.l1FinalizeTxHash.slice(-4)}
+                      {tx.l2TxHash.slice(0, 6)}...{tx.l2TxHash.slice(-4)}
                     </a>
                   </td>
                 </tr>

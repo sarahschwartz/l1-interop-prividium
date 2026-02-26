@@ -67,8 +67,6 @@ export function Deposit({
         accountAddress
       });
 
-      // const bundleHash = "0x6ba3b674121b0bed1b3bf77df520ab6a230bbe4adc1a593bc465918b9dcb5e25";
-
       console.log("bundleHash", bundleHash)
 
       const withdrawHash = await sendAuthorizedTx({
