@@ -12,7 +12,12 @@ import { Deposit } from "./Deposit";
 import { Withdraw } from "./Withdraw";
 import { useBridgeSdk } from "../hooks/useBridgeSdk";
 import type { ViemClient, ViemSdk } from "@matterlabs/zksync-js/viem";
-import { getAaveBalance, getShadowAccount } from "../utils/txns";
+import {
+  estimateWithdrawBridgeBuffer,
+  getAaveBalance,
+  getL1EthBalance,
+  getShadowAccount,
+} from "../utils/txns";
 import {
   addFinalizedTx,
 } from "../utils/storage";
@@ -46,6 +51,8 @@ export function EarnTab({
   const [sdkClient, setSdkClient] = useState<ViemClient>();
   const [shadowAccount, setShadowAccount] = useState<Address>();
   const [aaveBalance, setAaveBalance] = useState<bigint>(0n);
+  const [shadowEthBalance, setShadowEthBalance] = useState<bigint>(0n);
+  const [withdrawBridgeBuffer, setWithdrawBridgeBuffer] = useState<bigint>(0n);
   const [finalizingHash, setFinalizingHash] = useState<Hex>();
   
   const { getZKsyncSDK } = useBridgeSdk(rpcClient, connector, accountAddress);
@@ -56,12 +63,27 @@ export function EarnTab({
     setAaveBalance(bal);
   }
 
+  async function fetchShadowEthBalance() {
+    if (!sdkClient || !shadowAccount) return;
+    const balance = await getL1EthBalance(sdkClient, shadowAccount);
+    setShadowEthBalance(balance);
+  }
+
    useEffect(() => {
     async function updateAaveBal() {
       await fetchAaveBalance();
     }
 
     updateAaveBal();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shadowAccount])
+
+  useEffect(() => {
+    async function updateShadowEthBalance() {
+      await fetchShadowEthBalance();
+    }
+
+    updateShadowEthBalance();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shadowAccount])
 
@@ -84,6 +106,16 @@ export function EarnTab({
 
     setupSdk();
   }, [accountAddress]);
+
+  useEffect(() => {
+    async function updateWithdrawBridgeFee() {
+      if (!sdk || !sdkClient) return;
+      const requiredBuffer = await estimateWithdrawBridgeBuffer(sdk, sdkClient);
+      setWithdrawBridgeBuffer(requiredBuffer);
+    }
+
+    updateWithdrawBridgeFee();
+  }, [sdk, sdkClient]);
 
 
   const syncTxStatuses = useCallback(async () => {
@@ -238,6 +270,10 @@ export function EarnTab({
               ETH
             </span>
           </div>
+          <div className="aave-info-row">
+            <span className="info-label">Shadow ETH Buffer</span>
+            <span className="info-value">{formatEther(shadowEthBalance)} ETH</span>
+          </div>
         </div>
       )}
 
@@ -282,6 +318,8 @@ export function EarnTab({
             sdk={sdk}
             sdkClient={sdkClient}
             aaveBalance={aaveBalance}
+            shadowEthBalance={shadowEthBalance}
+            requiredEthBuffer={withdrawBridgeBuffer}
             onComplete={() => void syncTxStatuses()}
           />
         ) : (

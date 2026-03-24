@@ -179,6 +179,28 @@ export async function getAaveBalance(
   return balance as bigint;
 }
 
+export async function getL1EthBalance(
+  client: ViemClient,
+  accountAddress: Address,
+) {
+  return client.l1.getBalance({ address: accountAddress });
+}
+
+export async function estimateWithdrawBridgeBuffer(
+  sdk: ViemSdk,
+  client: ViemClient,
+) {
+  const gasPrice = await client.l1.getGasPrice();
+  const bridgehub = await sdk.contracts.bridgehub();
+  const baseCost = (await client.l1.readContract({
+    address: bridgehub.address,
+    abi: bridgehub.abi,
+    functionName: "l2TransactionBaseCost",
+    args: [L2_CHAIN_ID, gasPrice, L2_GAS_LIMIT, L2_GAS_PER_PUBDATA],
+  })) as bigint;
+  return baseCost + (baseCost * 20n) / 100n;
+}
+
 export async function getDepositBundle(
   shadowAccount: `0x${string}`,
   amount: bigint,
@@ -212,16 +234,8 @@ export async function getWithdrawBundle(
   sdk: ViemSdk,
   client: ViemClient,
 ) : Promise<ContractWriteTx> {
-  // Calculate mintValue for L2 gas
-  const gasPrice = await client.l1.getGasPrice();
+  const mintValue = await estimateWithdrawBridgeBuffer(sdk, client);
   const bridgehub = await sdk.contracts.bridgehub();
-  const baseCost = (await client.l1.readContract({
-    address: bridgehub.address,
-    abi: bridgehub.abi,
-    functionName: "l2TransactionBaseCost",
-    args: [L2_CHAIN_ID, gasPrice, L2_GAS_LIMIT, L2_GAS_PER_PUBDATA],
-  })) as bigint;
-  const mintValue = baseCost + (baseCost * 20n) / 100n; // 20% buffer
 
   // Step 1: Withdraw from Aave
   const withdrawData = encodeFunctionData({

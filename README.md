@@ -27,6 +27,13 @@ Finally, run the command below to ensure the account has some funds:
 cast send -r http://localhost:5050 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  --value 10000000000000000000 --private-key 0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110
 ```
 
+### Enable withdrawals on Prividium
+
+(TODO: fix once UI is updated to enable this).
+Add the `L2_BASE_TOKEN_ADDRESS` system contract in the admin panel and enable withdrawals.
+Warning: editing permissions for this contract could result in balances being public.
+This is just for demo purposes until the admin panel adds an option to safely enable withdrawals.
+
 ### Install contract deps
 
 ```bash
@@ -95,4 +102,5 @@ bun dev
 ### Connect your wallet
 
 Use a Prividium-connected wallet to connect to the app.
+Send some ETH on the L1 to your shadow account to pay for gas for Aave withdrawals.
 Then you can deposit and withdraw from the mock Aave contract on the L1.

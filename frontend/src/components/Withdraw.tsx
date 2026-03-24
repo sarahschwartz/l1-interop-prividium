@@ -13,6 +13,8 @@ interface Props {
   accountAddress: Address;
   sdk: ViemSdk;
   sdkClient: ViemClient;
+  shadowEthBalance: bigint;
+  requiredEthBuffer: bigint;
   onComplete?: () => void;
 }
 
@@ -22,6 +24,8 @@ export function Withdraw({
   accountAddress,
   sdk,
   sdkClient,
+  shadowEthBalance,
+  requiredEthBuffer,
   onComplete,
 }: Props) {
   const [withdrawAmount, setWithdrawAmount] = useState<string>("0");
@@ -29,6 +33,10 @@ export function Withdraw({
   const [withdrawError, setWithdrawError] = useState<string>();
 
   const { prividium } = usePrividium();
+  const hasEnoughEthBuffer = shadowEthBalance >= requiredEthBuffer;
+  const shadowBufferMessage = hasEnoughEthBuffer
+    ? undefined
+    : `Shadow account needs at least ${formatEther(requiredEthBuffer)} ETH to cover the bridge fee, but only has ${formatEther(shadowEthBalance)} ETH.`;
 
   const btnsDisabled =
     accountAddress && shadowAccount && aaveBalance > 0n ? false : true;
@@ -56,6 +64,9 @@ export function Withdraw({
       if (!shadowAccount || !accountAddress)
         throw new Error("missing account info");
       if (!amount) throw new Error("invalid amount");
+      if (!hasEnoughEthBuffer) {
+        throw new Error(shadowBufferMessage ?? "insufficient ETH buffer");
+      }
       console.log("Withdrawing ETH");
       const hash = await sendAuthorizedTx({
         txnType: "withdrawFromAaveBundle",
@@ -112,10 +123,15 @@ export function Withdraw({
             disabled={btnsDisabled || isSending}
           />
         </div>
+        {shadowBufferMessage && (
+          <div className="alert alert-error">
+            {shadowBufferMessage}
+          </div>
+        )}
         <button
           className="w-full enterprise-button-primary disabled:bg-gray-500! disabled:cursor-not-allowed!"
           id="aaveWithdrawBtn"
-          disabled={btnsDisabled || isSending}
+          disabled={btnsDisabled || isSending || !hasEnoughEthBuffer}
           type="submit"
         >
           {isSending ? (
