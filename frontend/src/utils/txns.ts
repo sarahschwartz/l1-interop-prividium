@@ -35,7 +35,7 @@ type ContractWriteTx = {
   value: bigint;
 };
 
-async function ensureWalletOnPrividiumChain() {
+async function ensureWalletOnPrividiumChain(prividium: PrividiumChain) {
   const provider = (window as Window & { ethereum?: WalletProvider }).ethereum;
   if (!provider) throw new Error("wallet provider not found");
 
@@ -53,26 +53,7 @@ async function ensureWalletOnPrividiumChain() {
       throw new Error("please switch your wallet to the Prividium network");
     }
 
-    await provider.request({
-      method: "wallet_addEthereumChain",
-      params: [
-        {
-          chainId: PRIVIDIUM_CHAIN_ID_HEX,
-          chainName: import.meta.env.VITE_CHAIN_NAME || `Prividium-${PRIVIDIUM_CHAIN_ID}`,
-          nativeCurrency: {
-            name: import.meta.env.VITE_NATIVE_CURRENCY_SYMBOL || "ETH",
-            symbol: import.meta.env.VITE_NATIVE_CURRENCY_SYMBOL || "ETH",
-            decimals: 18,
-          },
-          rpcUrls: [import.meta.env.VITE_PRIVIDIUM_RPC_URL],
-        },
-      ],
-    });
-
-    await provider.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: PRIVIDIUM_CHAIN_ID_HEX }],
-    });
+    await prividium.addNetworkToWallet();
   }
 
   const finalChainId = await provider.request({ method: "eth_chainId" });
@@ -98,7 +79,7 @@ export async function sendAuthorizedTx({
   shadowAccount: Address;
   accountAddress: Address;
 }) {
-  await ensureWalletOnPrividiumChain();
+  await ensureWalletOnPrividiumChain(prividium);
 
   let tx: ContractWriteTx | undefined;
 
