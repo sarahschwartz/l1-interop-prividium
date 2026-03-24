@@ -59,7 +59,7 @@ export function ActivityTab({
                           onClick={() => void onFinalize(tx)}
                           disabled={finalizingHash === tx.hash}
                         >
-                          {finalizingHash === tx.hash ? "Finalizing..." : "Finalize"}
+                          {finalizingHash === tx.hash ? "Finalizing..." : (tx.finalizeLabel ?? "Finalize")}
                         </button>
                       ) : null}
                     </div>
@@ -67,11 +67,11 @@ export function ActivityTab({
                   <td>
                     <a
                       className="tx-link"
-                      href={`${BLOCK_EXPLORER_URL}/tx/${tx.hash}`}
+                      href={`${BLOCK_EXPLORER_URL}/tx/${tx.displayHash ?? tx.hash}`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {tx.hash.slice(0, 6)}...{tx.hash.slice(-4)}
+                      {(tx.displayHash ?? tx.hash).slice(0, 6)}...{(tx.displayHash ?? tx.hash).slice(-4)}
                     </a>
                   </td>
                 </tr>

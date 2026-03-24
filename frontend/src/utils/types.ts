@@ -64,6 +64,8 @@ export interface PendingTxnState extends Metadata {
   status: string;
   readyToFinalize?: boolean;
   finalizeKind?: "withdrawal" | "interop";
+  finalizeLabel?: string;
+  displayHash?: Hex;
   lastFinalizeHash?: Hex;
   updatedAt?: string;
   accountAddress: Address;
