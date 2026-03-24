@@ -154,11 +154,19 @@ export function EarnTab({
         const params = await getInteropFinalizeParams(tx.hash, sdkClient);
         const baseGasPrice = await sdkClient.l1.getGasPrice();
         const bumpedGasPrice = (baseGasPrice * 12n) / 10n;
+        const finalizeGas = await sdkClient.l1.estimateContractGas({
+          address: L1_INTEROP_HANDLER_ADDRESS,
+          abi: L1_INTEROP_HANDLER_JSON.abi,
+          functionName: "receiveInteropFromL2",
+          args: [params],
+          account: accountAddress,
+        });
         l1FinalizeTxHash = await sdkClient.l1Wallet.writeContract({
           address: L1_INTEROP_HANDLER_ADDRESS,
           abi: L1_INTEROP_HANDLER_JSON.abi,
           functionName: "receiveInteropFromL2",
           args: [params],
+          gas: finalizeGas,
           gasPrice: bumpedGasPrice,
         });
 
@@ -166,8 +174,6 @@ export function EarnTab({
           hash: l1FinalizeTxHash,
           timeout: 300_000,
         });
-
-        console.log("RECEIPT:", receipt)
         if(receipt.status !== "success"){
           alert("Finalization txn reverted. Try again.");
           throw new Error("finalization reverted");
