@@ -34,6 +34,11 @@ Add the `L2_BASE_TOKEN_ADDRESS` system contract in the admin panel and enable wi
 Warning: editing permissions for this contract could result in balances being public.
 This is just for demo purposes until the admin panel adds an option to safely enable withdrawals.
 
+### Enable `L2NativeTokenVault` functions
+
+This system contract should already show up in the admin panel.
+Enable these functions to allow users to deposit and withdraw. (TODO: verify which ones are needed)
+
 ### Install contract deps
 
 ```bash
