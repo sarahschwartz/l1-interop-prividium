@@ -270,10 +270,6 @@ export function EarnTab({
               ETH
             </span>
           </div>
-          <div className="aave-info-row">
-            <span className="info-label">Shadow ETH Buffer</span>
-            <span className="info-value">{formatEther(shadowEthBalance)} ETH</span>
-          </div>
         </div>
       )}
 
