@@ -21,7 +21,7 @@ Then go to [`http://localhost:3001/`](http://localhost:3001/) and sign in with t
 Click on the "Wallets" tab in the user panel and then click on the "Add Network to Wallet" button.
 If you have previously added the network to your metamask, you may have to edit the network configuration to make sure the correct RPC Access token is being used by deleting the old RPC urls.
 
-Finally, run the command below to ensure the account has some funds:
+Finally, ensure the account has some funds by either going to the "Bridge" tab in the user panel and bridging some funds, or running the command below:
 
 ```bash
 cast send -r http://localhost:5050 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  --value 10000000000000000000 --private-key 0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110
@@ -30,9 +30,12 @@ cast send -r http://localhost:5050 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266  -
 ### Enable withdrawals on Prividium
 
 (TODO: fix once UI is updated to enable this).
-Add the `L2_BASE_TOKEN_ADDRESS` system contract in the admin panel and enable withdrawals.
+Add the `L2_BASE_TOKEN_ADDRESS` system contract in the [admin panel](http://localhost:3000/) and enable withdrawals.
 Warning: editing permissions for this contract could result in balances being public.
 This is just for demo purposes until the admin panel adds an option to safely enable withdrawals.
+
+The base token address is `0x000000000000000000000000000000000000800A`.
+You can find the ABI in `contracts/abis/BaseToken.json`.
 
 ### Enable `L2NativeTokenVault` functions
 
@@ -53,6 +56,14 @@ Then run:
 
 ```bash
 npx prividium proxy
+```
+
+or
+
+```bash
+cd frontend
+bun install
+bun prividium proxy
 ```
 
 ### Get the bridgehub address
@@ -79,6 +90,8 @@ bun deploy:l2-interop
 
 Once deployed, add this contract in your admin panel and configure the permissions so any user can call any of its functions.
 
+You can find the ABI in `contracts/artifacts/contracts/L2InteropCenter.sol/L2InteropCenter.json` under `abi`.
+
 ### Deploy the mock Aave contract
 
 ```bash
@@ -94,7 +107,7 @@ The whitelisted origin should be `http://localhost:5173` and the redirect URI sh
 
 Use the `.env.example` file as a template.
 Add the deployed contract addresses and
-the OAuth Client ID as the `VITE_CLIENT_ID`.
+the OAuth Client ID from the previous step as the `VITE_CLIENT_ID`.
 
 ### Run the frontend
 
